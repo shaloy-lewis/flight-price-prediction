@@ -15,7 +15,7 @@ def get_requirements(file_path:str)->List[str]:
     return requirements
 '''
 setup(
-    name='flight-price-prediction',
+    name='src',
     version='0.0.1',
     author='Shaloy Lewis',
     author_email='shaloylewis1998@gmail.com',
