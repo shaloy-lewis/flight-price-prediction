@@ -67,10 +67,9 @@ def parse_stops(stop_desc):
     elif '2+-stop' in clean_desc.lower():
         return 2
     
-def preprocess_data(df2):
-    # df2['flight_code'] = df2[['ch_code', 'num_code']].astype(str).agg('-'.join, axis=1)
+def preprocess_data(df2, loginday='10-02-2022'):
     df2['date'] = pd.to_datetime(df2['date'], format='%d-%m-%Y')
-    today = pd.to_datetime('10-02-2022', format='%d-%m-%Y')
+    today = pd.to_datetime(loginday, format='%d-%m-%Y')
     df2['days_prior_booked'] = (df2['date'] - today).dt.days
     df2['departure_time'] = df2['dep_time'].apply(categorize_time)
     df2['arrival_time'] = df2['arr_time'].apply(categorize_time)
