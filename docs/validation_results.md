@@ -98,3 +98,24 @@ No dataset or credential blocker remains. Docker execution, hosted CI, Linux/fre
 environment reproduction, original demo availability, public deployment, production
 monitoring, current-market predictive validity and measured business impact remain
 unverified. These limits are distinct from the locally passing implementation.
+
+
+## GitHub CI follow-up
+
+The first push and pull-request runs failed during mypy, before tests, packaging and
+Docker could run. The [original failed job](https://github.com/shaloy-lewis/flight-price-prediction/actions/runs/39636333195)
+reported four typing errors: a heterogeneous model-grid dictionary, untyped source
+row metadata, an unannotated grouping lookup, and a possibly missing model directory.
+
+Corrections provide explicit grid/source/group types and a definite Path fallback.
+The explicit mypy scope now includes all src modules and api.py (25 files), with a
+nonincremental CI invocation. Pinned setuptools and wheel are included in the dev extra
+so the documented no-isolation build does not depend on preinstalled runner tooling.
+Two regression tests cover model-directory environment/default/explicit selection.
+
+Follow-up local checks: **73 tests passed**, mypy passed on **25 source files**,
+lint/format and dependency checks passed, and sdist/wheel builds passed.
+These changes do not alter the experiment's data split, fitted model or reported
+metrics. Hosted reruns are visible in the
+[branch workflow history](https://github.com/shaloy-lewis/flight-price-prediction/actions?query=branch%3Aimprove%2Frigorous-fare-benchmark).
+The earlier local validation table describes the original implementation run.

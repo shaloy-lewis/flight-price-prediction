@@ -15,7 +15,9 @@ from src.utils.constants import FEATURES
 
 class PredictPipeline:
     def __init__(self, artifact_dir: Path | str | None = None):
-        directory = artifact_dir or os.environ.get("MODEL_DIR", "artifacts/v2")
+        directory = (
+            Path(artifact_dir) if artifact_dir else Path(os.getenv("MODEL_DIR") or "artifacts/v2")
+        )
         self.model, self.manifest = load_artifact(directory, trusted=True)
         self.explainer = Explainer(self.model, self.manifest.get("processed_training_mean"))
 

@@ -3,6 +3,7 @@
 import hashlib
 from dataclasses import dataclass
 from pathlib import Path
+from typing import TypedDict
 
 import numpy as np
 import pandas as pd
@@ -26,11 +27,17 @@ def sha256_file(path: Path) -> str:
     return digest.hexdigest()
 
 
+class SourceRecord(TypedDict):
+    file: str
+    sha256: str
+    rows: int
+
+
 @dataclass
 class Dataset:
     frame: pd.DataFrame
     quality: dict
-    sources: list[dict]
+    sources: list[SourceRecord]
 
 
 def _safe_map(series: pd.Series, parser) -> pd.Series:
@@ -45,7 +52,8 @@ def _safe_map(series: pd.Series, parser) -> pd.Series:
 
 def load_dataset(directory: Path | str) -> Dataset:
     directory = Path(directory)
-    frames, sources = [], []
+    frames: list[pd.DataFrame] = []
+    sources: list[SourceRecord] = []
     required = {
         "date",
         "airline",
@@ -143,7 +151,7 @@ def leakage_groups(frame: pd.DataFrame) -> np.ndarray:
         return item
 
     for columns in (["airline", "source_city", "destination_city", "flight_id"], FEATURES):
-        first = {}
+        first: dict[tuple[str | int | float, ...], int] = {}
         for idx, key in enumerate(frame[columns].itertuples(index=False, name=None)):
             if key in first:
                 a, b = find(idx), find(first[key])

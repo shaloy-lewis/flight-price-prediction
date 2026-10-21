@@ -19,7 +19,10 @@ dependencies = [
 [project.optional-dependencies]
 serve = ["fastapi==0.115.5", "uvicorn==0.32.1", "streamlit==1.41.1"]
 explain = ["shap==0.46.0"]
-dev = ["pytest==8.3.4", "httpx==0.28.1", "ruff==0.9.10", "mypy==1.15.0", "build==1.2.2.post1"]
+dev = [
+  "pytest==8.3.4", "httpx==0.28.1", "ruff==0.9.10", "mypy==1.15.0",
+  "build==1.2.2.post1", "setuptools==75.6.0", "wheel==0.45.1",
+]
 
 [project.scripts]
 fare-benchmark = "src.cli:main"
@@ -48,4 +51,4 @@ ignore = ["B905"]
 python_version = "3.12"
 ignore_missing_imports = true
 check_untyped_defs = true
-files = ["src/config.py", "src/schema.py", "src/utils", "src/artifacts.py", "api.py"]
+files = ["src", "api.py"]

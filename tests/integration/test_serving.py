@@ -146,3 +146,26 @@ def test_pipeline_invalid_outputs(trained_artifact, request_payload, monkeypatch
         pipeline.predict(pd.DataFrame([request_payload]))
     with pytest.raises(ValueError):
         pipeline.predict(pd.DataFrame())
+
+
+def test_model_directory_environment_and_explicit_override(
+    trained_artifact, request_payload, monkeypatch
+):
+    monkeypatch.setenv("MODEL_DIR", str(trained_artifact))
+    from_environment = PredictPipeline()
+    monkeypatch.setenv("MODEL_DIR", str(trained_artifact / "missing"))
+    explicit = PredictPipeline(trained_artifact)
+    frame = pd.DataFrame([request_payload])
+    np.testing.assert_allclose(from_environment.predict(frame), explicit.predict(frame))
+
+
+def test_empty_model_directory_uses_default(trained_artifact, request_payload, monkeypatch):
+    monkeypatch.setenv("MODEL_DIR", "")
+    # Put the trusted fixture at the documented default relative location.
+    monkeypatch.chdir(trained_artifact.parent)
+    import shutil
+
+    default = trained_artifact.parent / "artifacts" / "v2"
+    shutil.copytree(trained_artifact, default)
+    pipeline = PredictPipeline()
+    assert pipeline.predict(pd.DataFrame([request_payload])).shape == (1,)

@@ -56,7 +56,7 @@ def candidate(name: str, seed: int):
             l2_regularization=1.0,
         ),
     }
-    grids = {
+    grids: dict[str, dict[str, list[int | float]]] = {
         "median": {},
         "ridge": {"model__alpha": [1.0, 10.0]},
         "tree": {"model__max_depth": [12, 20]},
