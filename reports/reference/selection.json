@@ -1,0 +1,101 @@
+{
+  "selected_model": "hist_log",
+  "rule": "minimum mean grouped-CV MAE in original INR; fixed order breaks exact ties",
+  "holdout_used_for_selection": false,
+  "comparisons": [
+    {
+      "model": "median",
+      "cv_mae_inr": 16044.036736695294,
+      "cv_fold_mae_inr": [
+        15735.448174585947,
+        16051.269735665943,
+        16345.392299833993
+      ],
+      "cv_std_mae_inr": 249.06116542827144,
+      "fit_search_seconds": 4.739767100021709,
+      "best_parameters": {}
+    },
+    {
+      "model": "route_class_median",
+      "cv_mae_inr": 4655.9646172618595,
+      "cv_fold_mae_inr": [
+        5001.466671348852,
+        4575.907629932321,
+        4390.519550504406
+      ],
+      "cv_std_mae_inr": 255.76152568651548,
+      "fit_search_seconds": 0.9905443000025116,
+      "best_parameters": {}
+    },
+    {
+      "model": "ridge",
+      "cv_mae_inr": 4852.9286892912305,
+      "cv_fold_mae_inr": [
+        4971.015619151634,
+        4880.903622840284,
+        4706.866825881773
+      ],
+      "cv_std_mae_inr": 109.63756633194178,
+      "fit_search_seconds": 10.631736999988789,
+      "best_parameters": {
+        "model__alpha": 10.0
+      }
+    },
+    {
+      "model": "tree",
+      "cv_mae_inr": 3857.3986845595596,
+      "cv_fold_mae_inr": [
+        3864.701139708367,
+        3881.453291788114,
+        3826.041622182199
+      ],
+      "cv_std_mae_inr": 23.203558211748845,
+      "fit_search_seconds": 18.194272000022465,
+      "best_parameters": {
+        "model__max_depth": 12
+      }
+    },
+    {
+      "model": "tree_log",
+      "cv_mae_inr": 3734.912120574218,
+      "cv_fold_mae_inr": [
+        3793.5541129018457,
+        3757.1786797109053,
+        3654.0035691099047
+      ],
+      "cv_std_mae_inr": 59.10689925886986,
+      "fit_search_seconds": 18.526499999978114,
+      "best_parameters": {
+        "regressor__model__max_depth": 12
+      }
+    },
+    {
+      "model": "hist",
+      "cv_mae_inr": 3574.293512184319,
+      "cv_fold_mae_inr": [
+        3661.126900038207,
+        3571.599677192134,
+        3490.1539593226153
+      ],
+      "cv_std_mae_inr": 69.82539735873648,
+      "fit_search_seconds": 103.60328459998709,
+      "best_parameters": {
+        "model__max_leaf_nodes": 31
+      }
+    },
+    {
+      "model": "hist_log",
+      "cv_mae_inr": 3518.6475877961116,
+      "cv_fold_mae_inr": [
+        3610.383633739384,
+        3530.6206004462942,
+        3414.9385292026554
+      ],
+      "cv_std_mae_inr": 80.23802920388096,
+      "fit_search_seconds": 107.37811439999496,
+      "best_parameters": {
+        "regressor__model__max_leaf_nodes": 31
+      }
+    }
+  ]
+}

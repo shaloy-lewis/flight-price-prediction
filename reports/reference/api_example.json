@@ -1,0 +1,68 @@
+{
+  "request": {
+    "airline": "AirAsia",
+    "source_city": "Mumbai",
+    "destination_city": "Delhi",
+    "cabin_class": "economy",
+    "departure_time": "Early_Morning",
+    "arrival_time": "Morning",
+    "duration_minutes": 140.0,
+    "stops": 0
+  },
+  "response": {
+    "flight_price_prediction": 3594.67,
+    "currency": "INR",
+    "model_version": "v2",
+    "schema_version": "2.0",
+    "scope": "Historical Indian domestic fare benchmark; not a current quote or forecast.",
+    "warnings": [
+      "Historical Indian domestic fare benchmark; not a current quote or forecast."
+    ],
+    "uncertainty": "No calibrated individual prediction interval is available.",
+    "explanation": {
+      "method": "Tree SHAP (tree_path_dependent)",
+      "units": "log(INR)",
+      "base_value": 9.321275008319155,
+      "contributions": {
+        "numeric__duration_minutes": -0.2755292529911758,
+        "numeric__stops": -0.004799612983586117,
+        "categorical__airline_Air India": 0.004622164327035551,
+        "categorical__airline_AirAsia": -0.16491775655304472,
+        "categorical__airline_GO FIRST": 0.00707674538495377,
+        "categorical__airline_Indigo": 0.004007580035852858,
+        "categorical__airline_SpiceJet": -0.0024793662566941605,
+        "categorical__airline_StarAir": -3.3997279456222926e-05,
+        "categorical__airline_Trujet": 2.7378375980605537e-05,
+        "categorical__airline_Vistara": -0.02069093623911462,
+        "categorical__source_city_Bangalore": -0.005366889296964009,
+        "categorical__source_city_Chennai": 0.004726595795777973,
+        "categorical__source_city_Delhi": -0.0008895314639423751,
+        "categorical__source_city_Hyderabad": 0.0037655989480933514,
+        "categorical__source_city_Kolkata": -0.020229310995109075,
+        "categorical__source_city_Mumbai": 0.0076806596696237135,
+        "categorical__destination_city_Bangalore": -0.002537608042496372,
+        "categorical__destination_city_Chennai": 0.003485134975709898,
+        "categorical__destination_city_Delhi": 0.006071646565941257,
+        "categorical__destination_city_Hyderabad": 0.008313457857526841,
+        "categorical__destination_city_Kolkata": -0.01917503299137692,
+        "categorical__destination_city_Mumbai": -0.0008539833319517837,
+        "categorical__cabin_class_business": -0.6862895916928157,
+        "categorical__cabin_class_economy": 3.334252327406248e-06,
+        "categorical__departure_time_Afternoon": -0.0011080682338368605,
+        "categorical__departure_time_Early_Morning": 0.027590671631066807,
+        "categorical__departure_time_Evening": -0.00016459328036166486,
+        "categorical__departure_time_Late_Night": -0.0014907192447952786,
+        "categorical__departure_time_Morning": -0.001509487243466634,
+        "categorical__departure_time_Night": 0.0044254265206798956,
+        "categorical__arrival_time_Afternoon": 0.00018738595461830317,
+        "categorical__arrival_time_Early_Morning": 0.0011732272183201439,
+        "categorical__arrival_time_Evening": -0.0005023890844941372,
+        "categorical__arrival_time_Late_Night": 0.003612590701945691,
+        "categorical__arrival_time_Morning": -0.010018890273135692,
+        "categorical__arrival_time_Night": -0.00225037478009654
+      },
+      "model_output": 8.187207214276693,
+      "additivity_error": 1.7763568394002505e-15
+    }
+  }
+}

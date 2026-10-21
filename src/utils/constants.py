@@ -1,18 +1,28 @@
-from scipy.stats import randint, uniform
+"""Versioned, clock-independent historical fare contract."""
 
-CATEGORICAL_FEATURES=['airline', 'from', 'to', 'class', 'ch_code','departure_time','arrival_time']
-NUMERIC_FEATURES=['days_prior_booked','flight_duration','number_of_stops']
-TARGET_FEATURE='price'
-
-OUTLIER_COL = ['flight_duration']
-OUTLIER_CAPPING_LOWER_THRESHOLD=1
-OUTLIER_CAPPING_UPPER_THRESHOLD=99
-
-# PARAM_SPACE = {
-#     'criterion': ['friedman_msea', 'poisson', 'squared_error', 'absolute_error'],
-#     'max_depth': [None, 10, 20, 30, 50],
-#     'min_samples_split': [2, 5, 10],
-#     'min_samples_leaf': [1, 2, 4],
-#     'max_features': [None, 'sqrt', 'log2'],
-#     'splitter': ['best', 'random']
-# }
+SCHEMA_VERSION = "2.0"
+PROJECT_VERSION = "2.0.0"
+SCOPE = "Historical Indian domestic fare benchmark; not a current quote or forecast."
+AIRLINE_CODES = {
+    "SpiceJet": "SG",
+    "AirAsia": "I5",
+    "Vistara": "UK",
+    "GO FIRST": "G8",
+    "Indigo": "6E",
+    "Air India": "AI",
+    "Trujet": "2T",
+    "StarAir": "S5",
+}
+CITIES = ("Delhi", "Mumbai", "Bangalore", "Kolkata", "Hyderabad", "Chennai")
+TIME_BUCKETS = ("Late_Night", "Early_Morning", "Morning", "Afternoon", "Evening", "Night")
+CATEGORICAL_FEATURES = [
+    "airline",
+    "source_city",
+    "destination_city",
+    "cabin_class",
+    "departure_time",
+    "arrival_time",
+]
+NUMERIC_FEATURES = ["duration_minutes", "stops"]
+FEATURES = CATEGORICAL_FEATURES + NUMERIC_FEATURES
+TARGET_FEATURE = "price"

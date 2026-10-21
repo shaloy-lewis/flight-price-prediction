@@ -1,0 +1,14 @@
+{
+  "ref": "shubhambathwal/flight-price-prediction",
+  "title": "Flight Price Prediction",
+  "creatorName": "Shubham Bathwal",
+  "licenseName": "CC0: Public Domain",
+  "currentVersionNumber": 2,
+  "lastUpdated": "2022-02-25T17:58:19.347Z",
+  "source_url": "https://www.kaggle.com/datasets/shubhambathwal/flight-price-prediction",
+  "metadata_url": "https://www.kaggle.com/api/v1/datasets/view/shubhambathwal/flight-price-prediction",
+  "retrieved_on": "2026-10-21",
+  "publisher_collection_claim": "11 February to 31 March 2022, described as 50 days",
+  "raw_observation_timestamp_present": false,
+  "interpretation": "Raw date is travel date; no per-offer scrape/booking timestamp is available."
+}

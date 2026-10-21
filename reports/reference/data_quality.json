@@ -1,0 +1,112 @@
+{
+  "input_rows": 300261,
+  "missing_raw": {
+    "date": 0,
+    "airline": 0,
+    "ch_code": 0,
+    "num_code": 0,
+    "dep_time": 0,
+    "from": 0,
+    "time_taken": 0,
+    "stop": 0,
+    "arr_time": 0,
+    "to": 0,
+    "price": 0,
+    "cabin_class": 0,
+    "source_file": 0
+  },
+  "exact_duplicates_removed": 2,
+  "excluded_rows": 4,
+  "exclusion_reasons_overlapping": {
+    "missing_or_invalid_feature": 4,
+    "invalid_fare": 0,
+    "invalid_travel_date": 0,
+    "unknown_airline": 0,
+    "airline_code_mismatch": 0,
+    "invalid_route": 0,
+    "missing_flight_identifier": 0
+  },
+  "clock_duration_mismatches_flagged": 4,
+  "invalid_examples": [
+    {
+      "date": "26-02-2022",
+      "airline": "GO FIRST",
+      "ch_code": "G8",
+      "num_code": "146",
+      "dep_time": "05:45",
+      "from": "Bangalore",
+      "time_taken": "1.03h m",
+      "stop": "1-stop\n\t\t\t\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\t\t\t",
+      "arr_time": "09:10",
+      "to": "Mumbai",
+      "price": "5,177",
+      "cabin_class": "economy",
+      "source_file": "economy.csv"
+    },
+    {
+      "date": "26-02-2022",
+      "airline": "GO FIRST",
+      "ch_code": "G8",
+      "num_code": "146",
+      "dep_time": "05:45",
+      "from": "Bangalore",
+      "time_taken": "1.02h m",
+      "stop": "2+-stop",
+      "arr_time": "08:00",
+      "to": "Kolkata",
+      "price": "5,177",
+      "cabin_class": "economy",
+      "source_file": "economy.csv"
+    },
+    {
+      "date": "26-02-2022",
+      "airline": "GO FIRST",
+      "ch_code": "G8",
+      "num_code": "146",
+      "dep_time": "05:45",
+      "from": "Bangalore",
+      "time_taken": "1.03h m",
+      "stop": "2+-stop",
+      "arr_time": "09:30",
+      "to": "Hyderabad",
+      "price": "4,337",
+      "cabin_class": "economy",
+      "source_file": "economy.csv"
+    },
+    {
+      "date": "25-02-2022",
+      "airline": "GO FIRST",
+      "ch_code": "G8",
+      "num_code": "517",
+      "dep_time": "20:45",
+      "from": "Hyderabad",
+      "time_taken": "1.01h m",
+      "stop": "1-stop\n\t\t\t\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\t\t\t",
+      "arr_time": "21:50",
+      "to": "Delhi",
+      "price": "6,132",
+      "cabin_class": "economy",
+      "source_file": "economy.csv"
+    }
+  ],
+  "retained_rows": 300255,
+  "identical_feature_rows": 283737,
+  "feature_groups_with_conflicting_fares": 11111,
+  "travel_date_min": "2022-02-11",
+  "travel_date_max": "2022-03-31",
+  "fare_quantiles_inr": {
+    "0.0": 1105.0,
+    "0.01": 1776.0,
+    "0.5": 7425.0,
+    "0.99": 76736.0,
+    "1.0": 123071.0
+  },
+  "duration_quantiles_minutes": {
+    "0.0": 50.0,
+    "0.01": 80.0,
+    "0.5": 675.0,
+    "0.99": 1745.0,
+    "1.0": 2990.0
+  },
+  "observation_timestamp_available": false
+}

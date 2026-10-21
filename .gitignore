@@ -160,3 +160,12 @@ cython_debug/
 #.idea/
 
 *.csv
+
+.tools/
+.ruff_cache/
+data/
+artifacts/v*/
+reports/local/
+reports/smoke/
+logs/
+!reports/reference/*.csv

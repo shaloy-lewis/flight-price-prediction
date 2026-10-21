@@ -1,0 +1,51 @@
+[build-system]
+requires = ["setuptools==75.6.0", "wheel==0.45.1"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "flight-fare-benchmark"
+version = "2.0.0"
+description = "Reproducible historical Indian domestic fare benchmarking"
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+license = {file = "LICENSE"}
+authors = [{name = "Shaloy Lewis"}]
+dependencies = [
+  "numpy==2.1.3", "pandas==2.2.3", "scipy==1.14.1",
+  "scikit-learn==1.5.2", "joblib==1.4.2", "matplotlib==3.9.2",
+  "pydantic==2.10.2",
+]
+
+[project.optional-dependencies]
+serve = ["fastapi==0.115.5", "uvicorn==0.32.1", "streamlit==1.41.1"]
+explain = ["shap==0.46.0"]
+dev = ["pytest==8.3.4", "httpx==0.28.1", "ruff==0.9.10", "mypy==1.15.0", "build==1.2.2.post1"]
+
+[project.scripts]
+fare-benchmark = "src.cli:main"
+
+[tool.setuptools]
+py-modules = ["api", "app"]
+
+[tool.setuptools.packages.find]
+include = ["src", "src.*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
+filterwarnings = ["default"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+extend-exclude = [".tools", "experiment"]
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I", "UP", "B"]
+ignore = ["B905"]
+
+[tool.mypy]
+python_version = "3.12"
+ignore_missing_imports = true
+check_untyped_defs = true
+files = ["src/config.py", "src/schema.py", "src/utils", "src/artifacts.py", "api.py"]

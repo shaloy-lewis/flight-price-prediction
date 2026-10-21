@@ -1,0 +1,519 @@
+{
+  "partition": "training only",
+  "rows": 234931,
+  "scope": "Cross-sectional associations; no booking timestamps.",
+  "price_by_cabin": {
+    "business": {
+      "count": 72573,
+      "median": 53164.0,
+      "mean": 52518.79045926171
+    },
+    "economy": {
+      "count": 162358,
+      "median": 5742.0,
+      "mean": 6546.208760886436
+    }
+  },
+  "price_by_airline_and_cabin": [
+    {
+      "airline": "Air India",
+      "cabin_class": "business",
+      "count": 26794,
+      "median": 49613.0
+    },
+    {
+      "airline": "Air India",
+      "cabin_class": "economy",
+      "count": 39178,
+      "median": 6048.0
+    },
+    {
+      "airline": "AirAsia",
+      "cabin_class": "economy",
+      "count": 13031,
+      "median": 3090.0
+    },
+    {
+      "airline": "GO FIRST",
+      "cabin_class": "economy",
+      "count": 18400,
+      "median": 5292.0
+    },
+    {
+      "airline": "Indigo",
+      "cabin_class": "economy",
+      "count": 34057,
+      "median": 4453.0
+    },
+    {
+      "airline": "SpiceJet",
+      "cabin_class": "economy",
+      "count": 6922,
+      "median": 5654.0
+    },
+    {
+      "airline": "StarAir",
+      "cabin_class": "economy",
+      "count": 60,
+      "median": 3226.0
+    },
+    {
+      "airline": "Trujet",
+      "cabin_class": "economy",
+      "count": 41,
+      "median": 3196.0
+    },
+    {
+      "airline": "Vistara",
+      "cabin_class": "business",
+      "count": 45779,
+      "median": 56588.0
+    },
+    {
+      "airline": "Vistara",
+      "cabin_class": "economy",
+      "count": 50669,
+      "median": 6461.0
+    }
+  ],
+  "price_by_route_and_cabin": [
+    {
+      "source_city": "Bangalore",
+      "destination_city": "Chennai",
+      "cabin_class": "business",
+      "count": 1733,
+      "median": 56040.0
+    },
+    {
+      "source_city": "Bangalore",
+      "destination_city": "Chennai",
+      "cabin_class": "economy",
+      "count": 3198,
+      "median": 6161.0
+    },
+    {
+      "source_city": "Bangalore",
+      "destination_city": "Delhi",
+      "cabin_class": "business",
+      "count": 2865,
+      "median": 50361.0
+    },
+    {
+      "source_city": "Bangalore",
+      "destination_city": "Delhi",
+      "cabin_class": "economy",
+      "count": 7510,
+      "median": 4500.0
+    },
+    {
+      "source_city": "Bangalore",
+      "destination_city": "Hyderabad",
+      "cabin_class": "business",
+      "count": 2452,
+      "median": 56476.0
+    },
+    {
+      "source_city": "Bangalore",
+      "destination_city": "Hyderabad",
+      "cabin_class": "economy",
+      "count": 5092,
+      "median": 5639.0
+    },
+    {
+      "source_city": "Bangalore",
+      "destination_city": "Kolkata",
+      "cabin_class": "business",
+      "count": 2809,
+      "median": 60508.0
+    },
+    {
+      "source_city": "Bangalore",
+      "destination_city": "Kolkata",
+      "cabin_class": "economy",
+      "count": 6135,
+      "median": 6271.0
+    },
+    {
+      "source_city": "Bangalore",
+      "destination_city": "Mumbai",
+      "cabin_class": "business",
+      "count": 3246,
+      "median": 61404.0
+    },
+    {
+      "source_city": "Bangalore",
+      "destination_city": "Mumbai",
+      "cabin_class": "economy",
+      "count": 6540,
+      "median": 6158.0
+    },
+    {
+      "source_city": "Chennai",
+      "destination_city": "Bangalore",
+      "cabin_class": "business",
+      "count": 2051,
+      "median": 44144.0
+    },
+    {
+      "source_city": "Chennai",
+      "destination_city": "Bangalore",
+      "cabin_class": "economy",
+      "count": 3013,
+      "median": 5888.0
+    },
+    {
+      "source_city": "Chennai",
+      "destination_city": "Delhi",
+      "cabin_class": "business",
+      "count": 2632,
+      "median": 57920.0
+    },
+    {
+      "source_city": "Chennai",
+      "destination_city": "Delhi",
+      "cabin_class": "economy",
+      "count": 6156,
+      "median": 5181.0
+    },
+    {
+      "source_city": "Chennai",
+      "destination_city": "Hyderabad",
+      "cabin_class": "business",
+      "count": 1800,
+      "median": 51345.0
+    },
+    {
+      "source_city": "Chennai",
+      "destination_city": "Hyderabad",
+      "cabin_class": "economy",
+      "count": 3579,
+      "median": 4969.0
+    },
+    {
+      "source_city": "Chennai",
+      "destination_city": "Kolkata",
+      "cabin_class": "business",
+      "count": 1900,
+      "median": 55377.0
+    },
+    {
+      "source_city": "Chennai",
+      "destination_city": "Kolkata",
+      "cabin_class": "economy",
+      "count": 4082,
+      "median": 6147.0
+    },
+    {
+      "source_city": "Chennai",
+      "destination_city": "Mumbai",
+      "cabin_class": "business",
+      "count": 2741,
+      "median": 56273.0
+    },
+    {
+      "source_city": "Chennai",
+      "destination_city": "Mumbai",
+      "cabin_class": "economy",
+      "count": 5267,
+      "median": 5037.0
+    },
+    {
+      "source_city": "Delhi",
+      "destination_city": "Bangalore",
+      "cabin_class": "business",
+      "count": 2200,
+      "median": 42457.0
+    },
+    {
+      "source_city": "Delhi",
+      "destination_city": "Bangalore",
+      "cabin_class": "economy",
+      "count": 6577,
+      "median": 4501.0
+    },
+    {
+      "source_city": "Delhi",
+      "destination_city": "Chennai",
+      "cabin_class": "business",
+      "count": 2441,
+      "median": 57992.0
+    },
+    {
+      "source_city": "Delhi",
+      "destination_city": "Chennai",
+      "cabin_class": "economy",
+      "count": 5944,
+      "median": 4979.0
+    },
+    {
+      "source_city": "Delhi",
+      "destination_city": "Hyderabad",
+      "cabin_class": "business",
+      "count": 2384,
+      "median": 45055.0
+    },
+    {
+      "source_city": "Delhi",
+      "destination_city": "Hyderabad",
+      "cabin_class": "economy",
+      "count": 5473,
+      "median": 5761.0
+    },
+    {
+      "source_city": "Delhi",
+      "destination_city": "Kolkata",
+      "cabin_class": "business",
+      "count": 2008,
+      "median": 53209.0
+    },
+    {
+      "source_city": "Delhi",
+      "destination_city": "Kolkata",
+      "cabin_class": "economy",
+      "count": 6409,
+      "median": 5955.0
+    },
+    {
+      "source_city": "Delhi",
+      "destination_city": "Mumbai",
+      "cabin_class": "business",
+      "count": 3530,
+      "median": 41281.0
+    },
+    {
+      "source_city": "Delhi",
+      "destination_city": "Mumbai",
+      "cabin_class": "economy",
+      "count": 7187,
+      "median": 5227.0
+    },
+    {
+      "source_city": "Hyderabad",
+      "destination_city": "Bangalore",
+      "cabin_class": "business",
+      "count": 2085,
+      "median": 56590.0
+    },
+    {
+      "source_city": "Hyderabad",
+      "destination_city": "Bangalore",
+      "cabin_class": "economy",
+      "count": 3686,
+      "median": 5894.0
+    },
+    {
+      "source_city": "Hyderabad",
+      "destination_city": "Chennai",
+      "cabin_class": "business",
+      "count": 1793,
+      "median": 51707.0
+    },
+    {
+      "source_city": "Hyderabad",
+      "destination_city": "Chennai",
+      "cabin_class": "economy",
+      "count": 3547,
+      "median": 4639.0
+    },
+    {
+      "source_city": "Hyderabad",
+      "destination_city": "Delhi",
+      "cabin_class": "business",
+      "count": 1526,
+      "median": 39499.0
+    },
+    {
+      "source_city": "Hyderabad",
+      "destination_city": "Delhi",
+      "cabin_class": "economy",
+      "count": 4758,
+      "median": 5788.0
+    },
+    {
+      "source_city": "Hyderabad",
+      "destination_city": "Kolkata",
+      "cabin_class": "business",
+      "count": 1949,
+      "median": 51707.0
+    },
+    {
+      "source_city": "Hyderabad",
+      "destination_city": "Kolkata",
+      "cabin_class": "economy",
+      "count": 4630,
+      "median": 5960.0
+    },
+    {
+      "source_city": "Hyderabad",
+      "destination_city": "Mumbai",
+      "cabin_class": "business",
+      "count": 2462,
+      "median": 51058.0
+    },
+    {
+      "source_city": "Hyderabad",
+      "destination_city": "Mumbai",
+      "cabin_class": "economy",
+      "count": 5551,
+      "median": 4452.0
+    },
+    {
+      "source_city": "Kolkata",
+      "destination_city": "Bangalore",
+      "cabin_class": "business",
+      "count": 2103,
+      "median": 60978.0
+    },
+    {
+      "source_city": "Kolkata",
+      "destination_city": "Bangalore",
+      "cabin_class": "economy",
+      "count": 4843,
+      "median": 6489.0
+    },
+    {
+      "source_city": "Kolkata",
+      "destination_city": "Chennai",
+      "cabin_class": "business",
+      "count": 1755,
+      "median": 55983.0
+    },
+    {
+      "source_city": "Kolkata",
+      "destination_city": "Chennai",
+      "cabin_class": "economy",
+      "count": 3865,
+      "median": 6219.0
+    },
+    {
+      "source_city": "Kolkata",
+      "destination_city": "Delhi",
+      "cabin_class": "business",
+      "count": 1810,
+      "median": 57939.0
+    },
+    {
+      "source_city": "Kolkata",
+      "destination_city": "Delhi",
+      "cabin_class": "economy",
+      "count": 5953,
+      "median": 6363.0
+    },
+    {
+      "source_city": "Kolkata",
+      "destination_city": "Hyderabad",
+      "cabin_class": "business",
+      "count": 1871,
+      "median": 52175.0
+    },
+    {
+      "source_city": "Kolkata",
+      "destination_city": "Hyderabad",
+      "cabin_class": "economy",
+      "count": 4505,
+      "median": 6488.0
+    },
+    {
+      "source_city": "Kolkata",
+      "destination_city": "Mumbai",
+      "cabin_class": "business",
+      "count": 2687,
+      "median": 50368.0
+    },
+    {
+      "source_city": "Kolkata",
+      "destination_city": "Mumbai",
+      "cabin_class": "economy",
+      "count": 6323,
+      "median": 6067.0
+    },
+    {
+      "source_city": "Mumbai",
+      "destination_city": "Bangalore",
+      "cabin_class": "business",
+      "count": 3092,
+      "median": 55982.0
+    },
+    {
+      "source_city": "Mumbai",
+      "destination_city": "Bangalore",
+      "cabin_class": "economy",
+      "count": 7075,
+      "median": 6082.0
+    },
+    {
+      "source_city": "Mumbai",
+      "destination_city": "Chennai",
+      "cabin_class": "business",
+      "count": 2979,
+      "median": 51117.0
+    },
+    {
+      "source_city": "Mumbai",
+      "destination_city": "Chennai",
+      "cabin_class": "economy",
+      "count": 5475,
+      "median": 4877.0
+    },
+    {
+      "source_city": "Mumbai",
+      "destination_city": "Delhi",
+      "cabin_class": "business",
+      "count": 3770,
+      "median": 41269.0
+    },
+    {
+      "source_city": "Mumbai",
+      "destination_city": "Delhi",
+      "cabin_class": "economy",
+      "count": 7554,
+      "median": 5513.0
+    },
+    {
+      "source_city": "Mumbai",
+      "destination_city": "Hyderabad",
+      "cabin_class": "business",
+      "count": 2780,
+      "median": 58125.0
+    },
+    {
+      "source_city": "Mumbai",
+      "destination_city": "Hyderabad",
+      "cabin_class": "economy",
+      "count": 5505,
+      "median": 4325.0
+    },
+    {
+      "source_city": "Mumbai",
+      "destination_city": "Kolkata",
+      "cabin_class": "business",
+      "count": 3119,
+      "median": 57565.0
+    },
+    {
+      "source_city": "Mumbai",
+      "destination_city": "Kolkata",
+      "cabin_class": "economy",
+      "count": 6926,
+      "median": 5949.0
+    }
+  ],
+  "numeric_correlations": {
+    "duration_minutes": {
+      "duration_minutes": 1.0,
+      "stops": 0.47116888640381294,
+      "price": 0.2029002216970425
+    },
+    "stops": {
+      "duration_minutes": 0.47116888640381294,
+      "stops": 1.0,
+      "price": 0.12395895801360599
+    },
+    "price": {
+      "duration_minutes": 0.2029002216970425,
+      "stops": 0.12395895801360599,
+      "price": 1.0
+    }
+  },
+  "travel_date_coverage": "11 February to 31 March 2022; travel dates do not establish observation chronology."
+}

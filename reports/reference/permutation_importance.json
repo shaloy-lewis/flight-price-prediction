@@ -1,0 +1,42 @@
+[
+  {
+    "feature": "airline",
+    "mae_increase_inr": 545.1999530886682,
+    "repeat_std_inr": 40.79741730008628
+  },
+  {
+    "feature": "source_city",
+    "mae_increase_inr": 328.04223676934146,
+    "repeat_std_inr": 36.665458481395
+  },
+  {
+    "feature": "destination_city",
+    "mae_increase_inr": 410.4517861733863,
+    "repeat_std_inr": 42.84021913547963
+  },
+  {
+    "feature": "cabin_class",
+    "mae_increase_inr": 17740.326364450342,
+    "repeat_std_inr": 490.8136905544132
+  },
+  {
+    "feature": "departure_time",
+    "mae_increase_inr": 4.922109526788608,
+    "repeat_std_inr": 13.9866312459348
+  },
+  {
+    "feature": "arrival_time",
+    "mae_increase_inr": 94.22349908126088,
+    "repeat_std_inr": 4.9817321823615
+  },
+  {
+    "feature": "duration_minutes",
+    "mae_increase_inr": 1645.1843242006373,
+    "repeat_std_inr": 70.69909766329266
+  },
+  {
+    "feature": "stops",
+    "mae_increase_inr": 140.0088772497582,
+    "repeat_std_inr": 19.18201428654417
+  }
+]

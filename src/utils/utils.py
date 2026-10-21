@@ -1,103 +1,64 @@
-import pandas as pd
-import numpy as np
+"""Pure parsing helpers shared by ingestion and the legacy request adapter."""
+
 import re
-from src.utils.constants import NUMERIC_FEATURES, TARGET_FEATURE
-import os
-import sys
-import pickle
-from src.logger.logging import logging
-from src.exception.exception import customexception
+from datetime import date, datetime
+from functools import lru_cache
 
-def save_object(file_path, obj):
-    try:
-        dir_path = os.path.dirname(file_path)
+from src.utils.constants import TIME_BUCKETS
 
-        os.makedirs(dir_path, exist_ok=True)
 
-        with open(file_path, "wb") as file_obj:
-            pickle.dump(obj, file_obj)
+@lru_cache(maxsize=2048)
+def clock_minutes(value: str) -> int:
+    if not re.fullmatch(r"\d{2}:\d{2}", value.strip()):
+        raise ValueError("Time must use HH:MM")
+    parsed = datetime.strptime(value.strip(), "%H:%M")
+    return 60 * parsed.hour + parsed.minute
 
-    except Exception as e:
-        logging.info('Exception occured in save_object utils')
-        raise customexception(e, sys)
-    
-def load_object(file_path):
-    try:
-        with open(file_path,'rb') as file_obj:
-            return pickle.load(file_obj)
-    except Exception as e:
-        logging.info('Exception Occured in load_object utils')
-        raise customexception(e,sys)
 
-def categorize_time(time_str):
-    hour, minute = map(int, time_str.split(':'))
-    
-    total_minutes = hour * 60 + minute
-    
-    if 0 <= total_minutes < 360:  # 00:00 - 05:59
-        return 'Late_Night'
-    elif 360 <= total_minutes < 480:  # 06:00 - 07:59
-        return 'Early_Morning'
-    elif 480 <= total_minutes < 720:  # 08:00 - 11:59
-        return 'Morning'
-    elif 720 <= total_minutes < 1020:  # 12:00 - 16:59
-        return 'Afternoon'
-    elif 1020 <= total_minutes < 1140:  # 17:00 - 18:59
-        return 'Evening'
-    elif 1140 <= total_minutes <= 1439:  # 19:00 - 23:59
-        return 'Night'
-    else:
-        return 'Invalid'
-    
-def convert_to_minutes(time_str):
-    match = re.match(r'(\d+)h\s*(\d+)m', time_str)
-    if match:
-        hours = int(match.group(1))
-        minutes = int(match.group(2))
-        return hours * 60 + minutes
-    else:
-        return None
-    
-def parse_stops(stop_desc):
-    clean_desc = stop_desc.strip().replace('\n', '').replace('\t', '')
-    if 'non-stop' in clean_desc.lower():
-        return 0
-    elif '1-stop' in clean_desc.lower():
-        return 1
-    elif '2+-stop' in clean_desc.lower():
-        return 2
-    
-def preprocess_data(df2, loginday='10-02-2022'):
-    df2['date'] = pd.to_datetime(df2['date'], format='%d-%m-%Y')
-    today = pd.to_datetime(loginday, format='%d-%m-%Y')
-    df2['days_prior_booked'] = (df2['date'] - today).dt.days
-    df2['departure_time'] = df2['dep_time'].apply(categorize_time)
-    df2['arrival_time'] = df2['arr_time'].apply(categorize_time)
-    df2['flight_duration'] = df2['time_taken'].apply(convert_to_minutes)
-    df2['number_of_stops'] = df2['stop'].apply(lambda x: parse_stops(x))
-    
-    df2[NUMERIC_FEATURES]=df2[NUMERIC_FEATURES].astype(float)
-    
-    return df2
+@lru_cache(maxsize=2048)
+def categorize_time(value: str) -> str:
+    minutes = clock_minutes(value)
+    boundaries = (360, 480, 720, 1020, 1140, 1440)
+    return next(bucket for limit, bucket in zip(boundaries, TIME_BUCKETS) if minutes < limit)
 
-def target_preprocess(y):
-    y[TARGET_FEATURE] = y[TARGET_FEATURE].str.strip()
-    y[TARGET_FEATURE] = y[TARGET_FEATURE].str.replace(',', '')
-    y[TARGET_FEATURE] = pd.to_numeric(y[TARGET_FEATURE], errors='coerce')
-    
-    y[TARGET_FEATURE] = np.log(y[TARGET_FEATURE])
-    
-    return y 
 
-def cap_outliers(df, percentile_low=2.5, percentile_high=97.5, req_columns=[]):
-    # Select numeric columns
-    numeric_cols = df[req_columns]
-    
-    # Calculate percentiles
-    low_perc = numeric_cols.quantile(percentile_low / 100)
-    high_perc = numeric_cols.quantile(percentile_high / 100)
-    
-    # Cap outliers
-    df[req_columns] = numeric_cols.clip(lower=low_perc, upper=high_perc, axis=1)
-    
-    return df, low_perc, high_perc
+@lru_cache(maxsize=4096)
+def convert_to_minutes(value: str) -> int:
+    match = re.fullmatch(r"\s*(?:(\d+)h)?\s*(?:(\d+)m)?\s*", value)
+    if not match or not any(match.groups()):
+        raise ValueError("Duration must use hours/minutes, e.g. 02h 20m")
+    hours, minutes = (int(part or 0) for part in match.groups())
+    total = hours * 60 + minutes
+    if minutes >= 60 or not 0 < total <= 4320:
+        raise ValueError("Duration must be positive, at most 72h, with minutes below 60")
+    return total
+
+
+@lru_cache(maxsize=256)
+def parse_stops(value: str) -> int:
+    # Raw source sometimes appends connection location after a tab/newline.
+    token = value.strip().split("\n")[0].split("\t")[0].strip().lower()
+    mapping = {
+        "non-stop": 0,
+        "1-stop": 1,
+        "2+-stop": 2,
+        "2+stop": 2,
+        "zero": 0,
+        "one": 1,
+        "two_or_more": 2,
+    }
+    if token not in mapping:
+        raise ValueError("Stops must be non-stop, 1-stop or 2+-stop")
+    return mapping[token]
+
+
+@lru_cache(maxsize=256)
+def parse_travel_date(value: str) -> date:
+    if not re.fullmatch(r"\d{2}-\d{2}-\d{4}", value.strip()):
+        raise ValueError("Travel date must use DD-MM-YYYY")
+    return datetime.strptime(value.strip(), "%d-%m-%Y").date()
+
+
+def validate_clock_duration(departure: str, arrival: str, duration: int) -> None:
+    if (clock_minutes(arrival) - clock_minutes(departure)) % 1440 != duration % 1440:
+        raise ValueError("Duration and clock times disagree, including overnight/multi-day travel")
