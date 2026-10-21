@@ -1,0 +1,17 @@
+{
+  "seed": 42,
+  "holdout_fraction": 0.2,
+  "cv_folds": 3,
+  "bootstrap_repetitions": 500,
+  "permutation_sample": 2000,
+  "permutation_repeats": 5,
+  "models": [
+    "median",
+    "route_class_median",
+    "ridge",
+    "tree",
+    "tree_log",
+    "hist",
+    "hist_log"
+  ]
+}

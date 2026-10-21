@@ -1,72 +1,148 @@
-from fastapi import FastAPI, HTTPException
+"""FastAPI serving with one trusted model per process and explicit historical scope."""
+
+import json
+import logging
+import time
+from contextlib import asynccontextmanager
+from pathlib import Path
+
+import pandas as pd
+from fastapi import FastAPI, HTTPException, Request
 from pydantic import BaseModel
-from datetime import date, timedelta
-from src.pipeline.prediction_pipeline import PredictPipeline, CustomData
 
-app = FastAPI(
-    title='Flight Price Prediction',
-    description="Predicts price of flight using the travel details input by the user"
-)
+from src.artifacts import ArtifactError
+from src.pipeline.prediction_pipeline import PredictPipeline
+from src.schema import FlightRequest, LegacyFlightRequest
+from src.utils.constants import PROJECT_VERSION, SCHEMA_VERSION, SCOPE
 
-@app.get("/")
-async def root():
-    return {"message": "Flight price prediction api"}
+logger = logging.getLogger("fare_api")
+logger.setLevel(logging.INFO)
+if not logger.handlers:
+    handler = logging.StreamHandler()
+    handler.setFormatter(logging.Formatter("%(message)s"))
+    logger.addHandler(handler)
+logger.propagate = False
 
-@app.get("/ping", summary='Health check')
-def healthcheck():
-    return {"message": "Health check successful!"}
 
-class FlightData(BaseModel):
-    airline: str = "AirAsia"
-    from_: str = "Mumbai"
-    to_: str = "Delhi"
-    class_: str = "economy"
-    ch_code: str = "SG"
-    dep_time: str = "06:20"
-    arr_time: str = "08:40"
-    date: str = (date.today() + timedelta(days=4)).strftime("%d-%m-%Y")
-    time_taken: str = "02h 20m"
-    stop: str = "non-stop"
-    
-@app.post("/predict")
-def predict_default(data: FlightData):
-    try:
-        custom_data = CustomData(
-            airline=data.airline,
-            from_=data.from_,
-            to_=data.to_,
-            class_=data.class_,
-            ch_code=data.ch_code,
-            dep_time=data.dep_time,
-            arr_time=data.arr_time,
-            date=data.date,
-            time_taken=data.time_taken,
-            stop=data.stop
+class ExplanationResponse(BaseModel):
+    method: str
+    units: str
+    base_value: float
+    contributions: dict[str, float]
+    model_output: float
+    additivity_error: float
+
+
+class PredictionResponse(BaseModel):
+    flight_price_prediction: float
+    currency: str = "INR"
+    model_version: str
+    schema_version: str = SCHEMA_VERSION
+    scope: str = SCOPE
+    warnings: list[str]
+    uncertainty: str = "No calibrated individual prediction interval is available."
+    explanation: ExplanationResponse | None = None
+
+
+def create_app(artifact_dir: Path | str | None = None, predictor=None) -> FastAPI:
+    @asynccontextmanager
+    async def lifespan(application: FastAPI):
+        application.state.predictor = predictor
+        if predictor is None:
+            try:
+                application.state.predictor = PredictPipeline(artifact_dir)
+            except ArtifactError:
+                logger.exception("Model unavailable at initialization")
+        yield
+
+    application = FastAPI(
+        title="Historical Flight Fare Benchmark",
+        version=PROJECT_VERSION,
+        description=SCOPE,
+        lifespan=lifespan,
+    )
+
+    @application.middleware("http")
+    async def request_metrics(request: Request, call_next):
+        start = time.perf_counter()
+        response = await call_next(request)
+        logger.info(
+            json.dumps(
+                {
+                    "event": "request_complete",
+                    "path": request.url.path,
+                    "status": response.status_code,
+                    "latency_ms": round((time.perf_counter() - start) * 1000, 2),
+                }
+            )
         )
+        return response
 
-        # Convert to DataFrame
-        features_df = custom_data.get_data_as_dataframe()
+    @application.get("/")
+    def root():
+        return {"message": SCOPE, "documentation": "/docs"}
 
-        # Initialize the prediction pipeline and make predictions
-        pipeline = PredictPipeline()
-        prediction = pipeline.predict(features_df)
-        
-        # Compute global feature importance
-        global_importance = pipeline.get_global_feature_importance()
-        global_importance_dict = {col: imp for col, imp in zip(pipeline.preprocessor.get_feature_names_out(), global_importance)}
-        global_importance_dict = dict(sorted(global_importance_dict.items(), reverse=True, key=lambda item: item[1]))
+    @application.get("/ping")
+    def ping():
+        return {"status": "alive"}
 
-        # Compute instance-specific feature importance using SHAP
-        shap_values = pipeline.get_instance_feature_importance(features_df)
-        instance_importance_dict = {col: imp for col, imp in zip(features_df.columns, shap_values[0])}
-        instance_importance_dict = dict(sorted(instance_importance_dict.items(), reverse=True, key=lambda item: item[1]))
-
-        # Return the prediction result
+    @application.get("/health")
+    def health():
+        if application.state.predictor is None:
+            raise HTTPException(
+                503, "Model unavailable. Train or mount a compatible versioned artifact."
+            )
         return {
-            "flight_price_prediction": round(prediction[0],2),
-            "instance_feature_importance": instance_importance_dict,
-            "global_feature_importance": global_importance_dict
+            "status": "ready",
+            "model_version": application.state.predictor.manifest["model_version"],
         }
-        
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+
+    @application.get("/version")
+    def version():
+        model = application.state.predictor
+        return {
+            "application_version": PROJECT_VERSION,
+            "schema_version": SCHEMA_VERSION,
+            "model_version": model.manifest["model_version"] if model else None,
+        }
+
+    def respond(data: FlightRequest, explain: bool) -> PredictionResponse:
+        model = application.state.predictor
+        if model is None:
+            raise HTTPException(
+                503, "Model unavailable. Train or mount a compatible versioned artifact."
+            )
+        frame = pd.DataFrame([data.model_dump()])
+        try:
+            prediction = float(model.predict(frame)[0])
+            explanation = model.explain(frame) if explain else None
+            return PredictionResponse(
+                flight_price_prediction=round(prediction, 2),
+                model_version=model.manifest["model_version"],
+                warnings=[SCOPE, *model.warnings(frame)],
+                explanation=explanation,
+            )
+        except Exception as exc:
+            logger.exception("Prediction failed")
+            raise HTTPException(500, "Prediction failed; consult server logs.") from exc
+
+    @application.post("/predict", response_model=PredictionResponse)
+    def predict(data: FlightRequest, explain: bool = False):
+        return respond(data, explain)
+
+    @application.post("/predict/legacy", response_model=PredictionResponse, deprecated=True)
+    def legacy(data: LegacyFlightRequest, explain: bool = False):
+        try:
+            canonical = data.to_canonical()
+        except ValueError as exc:
+            raise HTTPException(422, str(exc)) from exc
+        response = respond(canonical, explain)
+        response.warnings.append(
+            "Legacy travel date was validated and ignored; booking lead time is not modeled."
+        )
+        return response
+
+    return application
+
+
+app = create_app()

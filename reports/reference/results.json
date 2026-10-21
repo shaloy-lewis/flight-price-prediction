@@ -1,0 +1,341 @@
+{
+  "source_snapshot_sha256": "9c507e99cc465ae76193708a10cb8f6f4b09c80e5b8a96bf9fb301275cec8874",
+  "selected_model": "hist_log",
+  "selection_rule": "minimum mean grouped-CV MAE in original INR; fixed order breaks exact ties",
+  "comparisons": [
+    {
+      "model": "median",
+      "cv_mae_inr": 16044.036736695294,
+      "cv_fold_mae_inr": [
+        15735.448174585947,
+        16051.269735665943,
+        16345.392299833993
+      ],
+      "cv_std_mae_inr": 249.06116542827144,
+      "fit_search_seconds": 4.739767100021709,
+      "best_parameters": {},
+      "holdout": {
+        "mae_inr": 16503.92347376156,
+        "rmse_inr": 26764.010832849075,
+        "r2": -0.3733225810704024,
+        "median_absolute_error_inr": 3924.0,
+        "mape_percent": 69.51604725778756,
+        "wape_percent": 77.2139836683068,
+        "bias_inr": -13954.267573939134,
+        "underprediction_rate": 0.5159971832710796
+      }
+    },
+    {
+      "model": "route_class_median",
+      "cv_mae_inr": 4655.9646172618595,
+      "cv_fold_mae_inr": [
+        5001.466671348852,
+        4575.907629932321,
+        4390.519550504406
+      ],
+      "cv_std_mae_inr": 255.76152568651548,
+      "fit_search_seconds": 0.9905443000025116,
+      "best_parameters": {},
+      "holdout": {
+        "mae_inr": 5164.263456003919,
+        "rmse_inr": 8520.586066255484,
+        "r2": 0.8608096578806843,
+        "median_absolute_error_inr": 2416.5,
+        "mape_percent": 34.63987053536638,
+        "wape_percent": 24.161124764342883,
+        "bias_inr": -1218.876247627212,
+        "underprediction_rate": 0.5119098646745454
+      }
+    },
+    {
+      "model": "ridge",
+      "cv_mae_inr": 4852.9286892912305,
+      "cv_fold_mae_inr": [
+        4971.015619151634,
+        4880.903622840284,
+        4706.866825881773
+      ],
+      "cv_std_mae_inr": 109.63756633194178,
+      "fit_search_seconds": 10.631736999988789,
+      "best_parameters": {
+        "model__alpha": 10.0
+      },
+      "holdout": {
+        "mae_inr": 4837.104770436872,
+        "rmse_inr": 7028.475527718651,
+        "r2": 0.9052907404798184,
+        "median_absolute_error_inr": 3312.0741814332214,
+        "mape_percent": 46.010708373977344,
+        "wape_percent": 22.630505366811153,
+        "bias_inr": 127.08003579446184,
+        "underprediction_rate": 0.4598922295021738
+      }
+    },
+    {
+      "model": "tree",
+      "cv_mae_inr": 3857.3986845595596,
+      "cv_fold_mae_inr": [
+        3864.701139708367,
+        3881.453291788114,
+        3826.041622182199
+      ],
+      "cv_std_mae_inr": 23.203558211748845,
+      "fit_search_seconds": 18.194272000022465,
+      "best_parameters": {
+        "model__max_depth": 12
+      },
+      "holdout": {
+        "mae_inr": 3880.805214098023,
+        "rmse_inr": 5896.592878370192,
+        "r2": 0.9333389033122106,
+        "median_absolute_error_inr": 2428.226332288401,
+        "mape_percent": 31.758778468599075,
+        "wape_percent": 18.156436007331298,
+        "bias_inr": -406.296776781689,
+        "underprediction_rate": 0.4010011634315106
+      }
+    },
+    {
+      "model": "tree_log",
+      "cv_mae_inr": 3734.912120574218,
+      "cv_fold_mae_inr": [
+        3793.5541129018457,
+        3757.1786797109053,
+        3654.0035691099047
+      ],
+      "cv_std_mae_inr": 59.10689925886986,
+      "fit_search_seconds": 18.526499999978114,
+      "best_parameters": {
+        "regressor__model__max_depth": 12
+      },
+      "holdout": {
+        "mae_inr": 3649.2175463683825,
+        "rmse_inr": 5726.4807939049915,
+        "r2": 0.9371296636139884,
+        "median_absolute_error_inr": 2157.719177826355,
+        "mape_percent": 27.354670664732478,
+        "wape_percent": 17.072947803917923,
+        "bias_inr": -708.0398594031886,
+        "underprediction_rate": 0.4479517482089278
+      }
+    },
+    {
+      "model": "hist",
+      "cv_mae_inr": 3574.293512184319,
+      "cv_fold_mae_inr": [
+        3661.126900038207,
+        3571.599677192134,
+        3490.1539593226153
+      ],
+      "cv_std_mae_inr": 69.82539735873648,
+      "fit_search_seconds": 103.60328459998709,
+      "best_parameters": {
+        "model__max_leaf_nodes": 31
+      },
+      "holdout": {
+        "mae_inr": 3582.1203072046833,
+        "rmse_inr": 5332.9208240374755,
+        "r2": 0.9454744017994395,
+        "median_absolute_error_inr": 2403.150792446544,
+        "mape_percent": 31.48565012659666,
+        "wape_percent": 16.759031834953877,
+        "bias_inr": -173.81950273337645,
+        "underprediction_rate": 0.3935000918498561
+      }
+    },
+    {
+      "model": "hist_log",
+      "cv_mae_inr": 3518.6475877961116,
+      "cv_fold_mae_inr": [
+        3610.383633739384,
+        3530.6206004462942,
+        3414.9385292026554
+      ],
+      "cv_std_mae_inr": 80.23802920388096,
+      "fit_search_seconds": 107.37811439999496,
+      "best_parameters": {
+        "regressor__model__max_leaf_nodes": 31
+      },
+      "holdout": {
+        "mae_inr": 3425.240250089688,
+        "rmse_inr": 5295.105744635419,
+        "r2": 0.9462449287173601,
+        "median_absolute_error_inr": 2094.817138092185,
+        "mape_percent": 26.381230992035377,
+        "wape_percent": 16.025064897503007,
+        "bias_inr": -635.4971065883666,
+        "underprediction_rate": 0.43242912252770804
+      }
+    }
+  ],
+  "uncertainty": {
+    "method": "itinerary-component percentile bootstrap",
+    "confidence": 0.95,
+    "repetitions": 500,
+    "groups": 699,
+    "mae_inr_interval": [
+      3207.5237275402537,
+      3619.7870135431976
+    ],
+    "mae_difference_vs_route_class_inr_interval": [
+      -2065.005355466947,
+      -1415.1505494012968
+    ]
+  },
+  "train_rows": 234931,
+  "holdout_rows": 65324,
+  "train_groups": 2792,
+  "holdout_groups": 699,
+  "total_groups": 3491,
+  "largest_group_rows": 1305,
+  "holdout_row_fraction": 0.21756173918835656,
+  "split_sha256": "1669b62951ef92151951252da8d56944ded7f218c3a279528cb8a89a6201310e",
+  "price_bucket_edges_inr_from_training": [
+    4755.0,
+    7420.0,
+    42457.0
+  ],
+  "config": {
+    "seed": 42,
+    "holdout_fraction": 0.2,
+    "cv_folds": 3,
+    "bootstrap_repetitions": 500,
+    "permutation_sample": 2000,
+    "permutation_repeats": 5,
+    "models": [
+      "median",
+      "route_class_median",
+      "ridge",
+      "tree",
+      "tree_log",
+      "hist",
+      "hist_log"
+    ]
+  },
+  "quality": {
+    "input_rows": 300261,
+    "missing_raw": {
+      "date": 0,
+      "airline": 0,
+      "ch_code": 0,
+      "num_code": 0,
+      "dep_time": 0,
+      "from": 0,
+      "time_taken": 0,
+      "stop": 0,
+      "arr_time": 0,
+      "to": 0,
+      "price": 0,
+      "cabin_class": 0,
+      "source_file": 0
+    },
+    "exact_duplicates_removed": 2,
+    "excluded_rows": 4,
+    "exclusion_reasons_overlapping": {
+      "missing_or_invalid_feature": 4,
+      "invalid_fare": 0,
+      "invalid_travel_date": 0,
+      "unknown_airline": 0,
+      "airline_code_mismatch": 0,
+      "invalid_route": 0,
+      "missing_flight_identifier": 0
+    },
+    "clock_duration_mismatches_flagged": 4,
+    "invalid_examples": [
+      {
+        "date": "26-02-2022",
+        "airline": "GO FIRST",
+        "ch_code": "G8",
+        "num_code": "146",
+        "dep_time": "05:45",
+        "from": "Bangalore",
+        "time_taken": "1.03h m",
+        "stop": "1-stop\n\t\t\t\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\t\t\t",
+        "arr_time": "09:10",
+        "to": "Mumbai",
+        "price": "5,177",
+        "cabin_class": "economy",
+        "source_file": "economy.csv"
+      },
+      {
+        "date": "26-02-2022",
+        "airline": "GO FIRST",
+        "ch_code": "G8",
+        "num_code": "146",
+        "dep_time": "05:45",
+        "from": "Bangalore",
+        "time_taken": "1.02h m",
+        "stop": "2+-stop",
+        "arr_time": "08:00",
+        "to": "Kolkata",
+        "price": "5,177",
+        "cabin_class": "economy",
+        "source_file": "economy.csv"
+      },
+      {
+        "date": "26-02-2022",
+        "airline": "GO FIRST",
+        "ch_code": "G8",
+        "num_code": "146",
+        "dep_time": "05:45",
+        "from": "Bangalore",
+        "time_taken": "1.03h m",
+        "stop": "2+-stop",
+        "arr_time": "09:30",
+        "to": "Hyderabad",
+        "price": "4,337",
+        "cabin_class": "economy",
+        "source_file": "economy.csv"
+      },
+      {
+        "date": "25-02-2022",
+        "airline": "GO FIRST",
+        "ch_code": "G8",
+        "num_code": "517",
+        "dep_time": "20:45",
+        "from": "Hyderabad",
+        "time_taken": "1.01h m",
+        "stop": "1-stop\n\t\t\t\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\t\t\t",
+        "arr_time": "21:50",
+        "to": "Delhi",
+        "price": "6,132",
+        "cabin_class": "economy",
+        "source_file": "economy.csv"
+      }
+    ],
+    "retained_rows": 300255,
+    "identical_feature_rows": 283737,
+    "feature_groups_with_conflicting_fares": 11111,
+    "travel_date_min": "2022-02-11",
+    "travel_date_max": "2022-03-31",
+    "fare_quantiles_inr": {
+      "0.0": 1105.0,
+      "0.01": 1776.0,
+      "0.5": 7425.0,
+      "0.99": 76736.0,
+      "1.0": 123071.0
+    },
+    "duration_quantiles_minutes": {
+      "0.0": 50.0,
+      "0.01": 80.0,
+      "0.5": 675.0,
+      "0.99": 1745.0,
+      "1.0": 2990.0
+    },
+    "observation_timestamp_available": false
+  },
+  "data_sources": [
+    {
+      "file": "economy.csv",
+      "sha256": "f785d63ab5ff6f428c55b683847bef3d7d8e29ccb41ff444fe73c2c5c4b2508c",
+      "rows": 206774
+    },
+    {
+      "file": "business.csv",
+      "sha256": "171e9cb53b1432198b8124800276037de29905cf3d7601a49f3e035d7e447617",
+      "rows": 93487
+    }
+  ],
+  "revision": "34004c097cbe0a9def299c499f16cae30a4aba22",
+  "working_tree_dirty": true
+}

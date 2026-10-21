@@ -1,110 +1,56 @@
-import os
-import sys
-import pandas as pd
-import numpy as np 
-import json
-from src.exception.exception import customexception
-from src.logger.logging import logging
-from datetime import date 
-import shap
-from sklearn.tree import DecisionTreeRegressor
+"""Load once, validate every request, and share the fitted training pipeline."""
 
-from src.utils.utils import load_object
-from src.utils.constants import OUTLIER_COL 
-from src.utils.utils import preprocess_data
+import os
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+
+from src.artifacts import load_artifact
+from src.explainability import Explainer
+from src.monitoring import support_warnings
+from src.schema import FlightRequest, LegacyFlightRequest
+from src.utils.constants import FEATURES
+
 
 class PredictPipeline:
-    def __init__(self):
-        logging.info("Initializing the prediction pipeline")
-        self.preprocessor_path=os.path.join("artifacts","preprocessor.pkl")
-        self.model_path=os.path.join("artifacts","model.pkl")
-        self.outlier_threshold_path=os.path.join("artifacts","outlier_threshold.json")
+    def __init__(self, artifact_dir: Path | str | None = None):
+        directory = (
+            Path(artifact_dir) if artifact_dir else Path(os.getenv("MODEL_DIR") or "artifacts/v2")
+        )
+        self.model, self.manifest = load_artifact(directory, trusted=True)
+        self.explainer = Explainer(self.model, self.manifest.get("processed_training_mean"))
 
-        self.preprocessor=load_object(self.preprocessor_path)
-        self.model=load_object(self.model_path)
-        with open(self.outlier_threshold_path,'r') as file:
-            self.outlier_threshold=json.load(file)
+    def validated_frame(self, features: pd.DataFrame) -> pd.DataFrame:
+        if features.empty:
+            raise ValueError("At least one itinerary is required")
+        records = [
+            FlightRequest.model_validate(row).model_dump() for row in features.to_dict("records")
+        ]
+        return pd.DataFrame(records, columns=FEATURES)
 
-    def predict(self,features):
-        try:    
-            low_perc = pd.Series(self.outlier_threshold['low_perc'])
-            high_perc = pd.Series(self.outlier_threshold['high_perc'])
-            
-            features=preprocess_data(features,loginday=date.today().strftime("%d-%m-%Y"))
-            features[OUTLIER_COL] = features[OUTLIER_COL].clip(lower=low_perc, upper=high_perc, axis=1)
-            
-            scaled_features=self.preprocessor.transform(features)
-            rawpred=self.model.predict(scaled_features)
-            pred=np.exp(rawpred)
-            logging.info('Predictions obtained successfully')
-            logging.info(f'Flight price prediction: {pred}')
+    def predict(self, features: pd.DataFrame) -> np.ndarray:
+        frame = self.validated_frame(features)
+        result = np.asarray(self.model.predict(frame), dtype=float)
+        if result.shape != (len(frame),) or not np.isfinite(result).all() or (result <= 0).any():
+            raise RuntimeError("Model produced invalid fare estimates")
+        return result
 
-            return pred
+    def warnings(self, features: pd.DataFrame) -> list[str]:
+        return support_warnings(self.validated_frame(features), self.manifest["reference"])
 
-        except Exception as e:
-            raise customexception(e,sys)
-    
-    def get_global_feature_importance(self):
-        try:
-            if hasattr(self.model, 'feature_importances_'):
-                return self.model.feature_importances_
-            else:
-                raise ValueError("Model does not support feature_importances_ attribute.")
-        except Exception as e:
-            raise customexception(e, sys)
+    def explain(self, features: pd.DataFrame) -> dict:
+        frame = self.validated_frame(features)
+        if len(frame) != 1:
+            raise ValueError("Local explanation requires exactly one itinerary")
+        return self.explainer.explain(frame)
 
-    def get_instance_feature_importance(self, features):
-        try:
-            scaled_features = self.preprocessor.transform(features)
-            explainer = shap.TreeExplainer(self.model)
-            shap_values = explainer.shap_values(scaled_features)
-            logging.info('SHAP values computed successfully')
-            
-            return shap_values
-        
-        except Exception as e:
-            raise customexception(e, sys)
 
 class CustomData:
-    def __init__(self,
-                 airline: str,
-                 from_: str,
-                 to_: str,
-                 class_: str,
-                 ch_code: str,
-                 dep_time: str,
-                 arr_time: str,
-                 date: str,
-                 time_taken: str,
-                 stop: str):
-        self.airline = airline
-        self.from_ = from_
-        self.to_ = to_
-        self.class_ = class_
-        self.ch_code = ch_code
-        self.dep_time = dep_time
-        self.arr_time = arr_time
-        self.date = date
-        self.time_taken = time_taken
-        self.stop = stop 
-        
-    def get_data_as_dataframe(self):
-        try:
-            custom_data_input_dict = {
-                'airline': [self.airline],
-                'from': [self.from_],
-                'to': [self.to_],
-                'class': [self.class_],
-                'ch_code': [self.ch_code],
-                'dep_time': [self.dep_time],
-                'arr_time': [self.arr_time],
-                'date': [self.date],
-                'time_taken': [self.time_taken],
-                'stop': [self.stop]
-                }
-            df = pd.DataFrame(custom_data_input_dict)
-            logging.info('Data received for inference prediction')
-            return df
-        except Exception as e:
-            logging.info('Exception occured in prediction pipeline')
-            raise customexception(e,sys)
+    """Compatibility adapter for original Python clients; date is validated and discarded."""
+
+    def __init__(self, **kwargs):
+        self.request = LegacyFlightRequest(**kwargs)
+
+    def get_data_as_dataframe(self) -> pd.DataFrame:
+        return pd.DataFrame([self.request.to_canonical().model_dump()], columns=FEATURES)

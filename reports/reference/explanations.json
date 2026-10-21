@@ -1,0 +1,196 @@
+{
+  "local_example": {
+    "method": "Tree SHAP (tree_path_dependent)",
+    "units": "log(INR)",
+    "base_value": 9.321275008319155,
+    "contributions": {
+      "numeric__duration_minutes": 0.02291079569556846,
+      "numeric__stops": -0.00647344304069916,
+      "categorical__airline_Air India": 0.0009922723795103697,
+      "categorical__airline_AirAsia": -0.3699933715597669,
+      "categorical__airline_GO FIRST": 0.006105021795165407,
+      "categorical__airline_Indigo": 0.016935396177485972,
+      "categorical__airline_SpiceJet": -0.0017982346367615967,
+      "categorical__airline_StarAir": -5.830297128280013e-05,
+      "categorical__airline_Trujet": 2.6692564913180024e-05,
+      "categorical__airline_Vistara": -0.02427876389049107,
+      "categorical__source_city_Bangalore": -0.000316709489823272,
+      "categorical__source_city_Chennai": 0.010330283458212314,
+      "categorical__source_city_Delhi": 0.03524223374092398,
+      "categorical__source_city_Hyderabad": 0.007240395477003238,
+      "categorical__source_city_Kolkata": -0.02068451563922751,
+      "categorical__source_city_Mumbai": 0.00928736884134432,
+      "categorical__destination_city_Bangalore": -0.0022566381275032493,
+      "categorical__destination_city_Chennai": 0.009365101877559841,
+      "categorical__destination_city_Delhi": -0.0018238101930572294,
+      "categorical__destination_city_Hyderabad": -0.032243399967804925,
+      "categorical__destination_city_Kolkata": -0.011789623938000617,
+      "categorical__destination_city_Mumbai": 0.004291869469478015,
+      "categorical__cabin_class_business": -0.7429488812011679,
+      "categorical__cabin_class_economy": -8.136669055376657e-06,
+      "categorical__departure_time_Afternoon": 0.021826021727864596,
+      "categorical__departure_time_Early_Morning": -0.0005201058916628465,
+      "categorical__departure_time_Evening": -0.00047576342649095175,
+      "categorical__departure_time_Late_Night": -0.0002779477398660808,
+      "categorical__departure_time_Morning": 0.005148342788119998,
+      "categorical__departure_time_Night": 0.012329785499934505,
+      "categorical__arrival_time_Afternoon": -2.151841323902294e-05,
+      "categorical__arrival_time_Early_Morning": 0.001920753391159584,
+      "categorical__arrival_time_Evening": -0.0007175615265254595,
+      "categorical__arrival_time_Late_Night": 0.003962009689812488,
+      "categorical__arrival_time_Morning": 0.004097134440557095,
+      "categorical__arrival_time_Night": 0.01228808879552862
+    },
+    "model_output": 8.288887847806876,
+    "additivity_error": -5.329070518200751e-15
+  },
+  "sample_size": 100,
+  "units": "log(INR)",
+  "method": "Tree SHAP (tree_path_dependent)",
+  "mean_absolute_attribution": [
+    {
+      "feature": "numeric__duration_minutes",
+      "mean_absolute_contribution": 0.1260750289109483
+    },
+    {
+      "feature": "numeric__stops",
+      "mean_absolute_contribution": 0.025902352859482572
+    },
+    {
+      "feature": "categorical__airline_Air India",
+      "mean_absolute_contribution": 0.01240639010279339
+    },
+    {
+      "feature": "categorical__airline_AirAsia",
+      "mean_absolute_contribution": 0.06325155946511442
+    },
+    {
+      "feature": "categorical__airline_GO FIRST",
+      "mean_absolute_contribution": 0.00885676243741094
+    },
+    {
+      "feature": "categorical__airline_Indigo",
+      "mean_absolute_contribution": 0.030128469861279438
+    },
+    {
+      "feature": "categorical__airline_SpiceJet",
+      "mean_absolute_contribution": 0.0010926749901688571
+    },
+    {
+      "feature": "categorical__airline_StarAir",
+      "mean_absolute_contribution": 3.870531092342e-05
+    },
+    {
+      "feature": "categorical__airline_Trujet",
+      "mean_absolute_contribution": 2.4691452687137028e-05
+    },
+    {
+      "feature": "categorical__airline_Vistara",
+      "mean_absolute_contribution": 0.04471212112379876
+    },
+    {
+      "feature": "categorical__source_city_Bangalore",
+      "mean_absolute_contribution": 0.0040038352316769015
+    },
+    {
+      "feature": "categorical__source_city_Chennai",
+      "mean_absolute_contribution": 0.0043640324249506375
+    },
+    {
+      "feature": "categorical__source_city_Delhi",
+      "mean_absolute_contribution": 0.006187035268503774
+    },
+    {
+      "feature": "categorical__source_city_Hyderabad",
+      "mean_absolute_contribution": 0.008554795583292168
+    },
+    {
+      "feature": "categorical__source_city_Kolkata",
+      "mean_absolute_contribution": 0.032754884570268546
+    },
+    {
+      "feature": "categorical__source_city_Mumbai",
+      "mean_absolute_contribution": 0.004272633249301148
+    },
+    {
+      "feature": "categorical__destination_city_Bangalore",
+      "mean_absolute_contribution": 0.006406011182803827
+    },
+    {
+      "feature": "categorical__destination_city_Chennai",
+      "mean_absolute_contribution": 0.005082024040787847
+    },
+    {
+      "feature": "categorical__destination_city_Delhi",
+      "mean_absolute_contribution": 0.0036410919498495666
+    },
+    {
+      "feature": "categorical__destination_city_Hyderabad",
+      "mean_absolute_contribution": 0.012567584228980761
+    },
+    {
+      "feature": "categorical__destination_city_Kolkata",
+      "mean_absolute_contribution": 0.026484773706172193
+    },
+    {
+      "feature": "categorical__destination_city_Mumbai",
+      "mean_absolute_contribution": 0.003913476542085238
+    },
+    {
+      "feature": "categorical__cabin_class_business",
+      "mean_absolute_contribution": 0.8887223254784946
+    },
+    {
+      "feature": "categorical__cabin_class_economy",
+      "mean_absolute_contribution": 7.658176946338285e-05
+    },
+    {
+      "feature": "categorical__departure_time_Afternoon",
+      "mean_absolute_contribution": 0.0022891612214627276
+    },
+    {
+      "feature": "categorical__departure_time_Early_Morning",
+      "mean_absolute_contribution": 0.001461754540512704
+    },
+    {
+      "feature": "categorical__departure_time_Evening",
+      "mean_absolute_contribution": 0.0015825975409449705
+    },
+    {
+      "feature": "categorical__departure_time_Late_Night",
+      "mean_absolute_contribution": 0.00023021375270224935
+    },
+    {
+      "feature": "categorical__departure_time_Morning",
+      "mean_absolute_contribution": 0.008934240104761572
+    },
+    {
+      "feature": "categorical__departure_time_Night",
+      "mean_absolute_contribution": 0.00519505996503821
+    },
+    {
+      "feature": "categorical__arrival_time_Afternoon",
+      "mean_absolute_contribution": 0.001744664333990464
+    },
+    {
+      "feature": "categorical__arrival_time_Early_Morning",
+      "mean_absolute_contribution": 0.006880012736504452
+    },
+    {
+      "feature": "categorical__arrival_time_Evening",
+      "mean_absolute_contribution": 0.0009288485511301312
+    },
+    {
+      "feature": "categorical__arrival_time_Late_Night",
+      "mean_absolute_contribution": 0.00403502165450846
+    },
+    {
+      "feature": "categorical__arrival_time_Morning",
+      "mean_absolute_contribution": 0.007918468955255198
+    },
+    {
+      "feature": "categorical__arrival_time_Night",
+      "mean_absolute_contribution": 0.0026070033406227476
+    }
+  ]
+}

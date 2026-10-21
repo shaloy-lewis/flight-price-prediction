@@ -1,52 +1,77 @@
-from src.logger.logging import logging
-from src.exception.exception import customexception
-import os
-import sys
-from dataclasses import dataclass
-from src.utils.utils import save_object
-# from skopt import BayesSearchCV
-# from sklearn.model_selection import RepeatedKFold, RandomizedSearchCV
-# from sklearn.ensemble import RandomForestRegressor
+"""Prespecified compact candidate set and realistic non-ML reference."""
+
+import numpy as np
+from sklearn.base import BaseEstimator, RegressorMixin
+from sklearn.compose import TransformedTargetRegressor
+from sklearn.dummy import DummyRegressor
+from sklearn.ensemble import HistGradientBoostingRegressor
+from sklearn.linear_model import Ridge
+from sklearn.pipeline import Pipeline
 from sklearn.tree import DecisionTreeRegressor
-# from src.utils.constants import PARAM_SPACE
+from sklearn.utils.validation import check_is_fitted
 
-@dataclass 
-class ModelTrainerConfig:
-    trained_model_file_path = os.path.join('artifacts','model.pkl')
-    
-class ModelTrainer:
-    def __init__(self):
-        self.model_trainer_config = ModelTrainerConfig()
-    
-    def initate_model_training(self,train_array,train_target):
-        try:
-            logging.info("Initiating model training")
-            model=DecisionTreeRegressor()
-            # cv_method=RepeatedKFold(n_splits=5, n_repeats=3, random_state=42)
-            
-            # search = RandomizedSearchCV(
-            #     estimator=model,
-            #     param_distributions=PARAM_SPACE,
-            #     n_iter=50, 
-            #     cv=3,
-            #     random_state=42,
-            #     n_jobs=1
-            # )
-            
-            logging.info("Model training in progress")
-            model.fit(train_array, train_target)
-            
-            logging.info("Model training done")
-            # logging.info(f"Best params: {search.best_params_}")
-            # best_model = search.best_estimator_
-            
-            logging.info("Saving model")
-            save_object(
-                 file_path=self.model_trainer_config.trained_model_file_path,
-                 obj=model 
-            )
-            logging.info("Model saved successfully")
+from src.components.data_transformation import make_preprocessor
 
-        except Exception as e:
-            logging.info('Exception occured in model training')
-            raise customexception(e,sys)
+
+class RouteClassMedianRegressor(RegressorMixin, BaseEstimator):
+    """Training-only route/cabin median; unknown segments use the training median."""
+
+    def fit(self, X, y):
+        frame = X[["source_city", "destination_city", "cabin_class"]].copy()
+        frame["target"] = np.asarray(y)
+        self.medians_ = (
+            frame.groupby(["source_city", "destination_city", "cabin_class"])
+            .target.median()
+            .to_dict()
+        )
+        self.global_median_ = float(np.median(y))
+        self.n_features_in_ = X.shape[1]
+        return self
+
+    def predict(self, X):
+        check_is_fitted(self, "medians_")
+        return np.array(
+            [
+                self.medians_.get(key, self.global_median_)
+                for key in X[["source_city", "destination_city", "cabin_class"]].itertuples(
+                    index=False, name=None
+                )
+            ]
+        )
+
+
+def candidate(name: str, seed: int):
+    if name == "route_class_median":
+        return RouteClassMedianRegressor(), {}
+    base = name.removesuffix("_log")
+    models = {
+        "median": DummyRegressor(strategy="median"),
+        "ridge": Ridge(),
+        "tree": DecisionTreeRegressor(random_state=seed, min_samples_leaf=30),
+        "hist": HistGradientBoostingRegressor(
+            random_state=seed,
+            max_iter=120,
+            learning_rate=0.08,
+            early_stopping=False,
+            l2_regularization=1.0,
+        ),
+    }
+    grids: dict[str, dict[str, list[int | float]]] = {
+        "median": {},
+        "ridge": {"model__alpha": [1.0, 10.0]},
+        "tree": {"model__max_depth": [12, 20]},
+        "hist": {"model__max_leaf_nodes": [15, 31]},
+    }
+    pipeline = Pipeline([("preprocessor", make_preprocessor()), ("model", models[base])])
+    if name.endswith("_log"):
+        estimator = TransformedTargetRegressor(regressor=pipeline, func=np.log, inverse_func=np.exp)
+        return estimator, {"regressor__" + key: value for key, value in grids[base].items()}
+    return pipeline, grids[base]
+
+
+def fitted_pipeline(estimator):
+    return estimator.regressor_ if isinstance(estimator, TransformedTargetRegressor) else estimator
+
+
+def target_units(estimator) -> str:
+    return "log(INR)" if isinstance(estimator, TransformedTargetRegressor) else "INR"

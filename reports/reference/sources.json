@@ -1,0 +1,12 @@
+[
+  {
+    "file": "economy.csv",
+    "sha256": "f785d63ab5ff6f428c55b683847bef3d7d8e29ccb41ff444fe73c2c5c4b2508c",
+    "rows": 206774
+  },
+  {
+    "file": "business.csv",
+    "sha256": "171e9cb53b1432198b8124800276037de29905cf3d7601a49f3e035d7e447617",
+    "rows": 93487
+  }
+]

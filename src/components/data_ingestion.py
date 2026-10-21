@@ -1,71 +1,174 @@
-import pandas as pd
-import os
-import sys
+"""Read original raw Kaggle files, report exclusions, and create leakage groups."""
 
-from src.logger.logging import logging
-from src.exception.exception import customexception
-from src.utils.constants import TARGET_FEATURE
-
-from sklearn.model_selection import train_test_split
+import hashlib
 from dataclasses import dataclass
+from pathlib import Path
+from typing import TypedDict
+
+import numpy as np
+import pandas as pd
+from sklearn.model_selection import GroupShuffleSplit
+
+from src.utils.constants import AIRLINE_CODES, CITIES, FEATURES
+from src.utils.utils import (
+    categorize_time,
+    clock_minutes,
+    convert_to_minutes,
+    parse_stops,
+    parse_travel_date,
+)
+
+
+def sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for block in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(block)
+    return digest.hexdigest()
+
+
+class SourceRecord(TypedDict):
+    file: str
+    sha256: str
+    rows: int
 
 
 @dataclass
-class DataIngestionConfig:
-    train_data_path:str=os.path.join("artifacts","X_train.csv")
-    test_data_path:str=os.path.join("artifacts","X_test.csv")
-    train_target_path:str=os.path.join("artifacts","y_train.csv")
-    test_target_path:str=os.path.join("artifacts","y_test.csv")
+class Dataset:
+    frame: pd.DataFrame
+    quality: dict
+    sources: list[SourceRecord]
 
-class DataIngestion:
-    def __init__(self):
-        self.ingestion_config=DataIngestionConfig()
 
-    def initiate_data_ingestion(self):
-        logging.info("initiating data ingestion")
+def _safe_map(series: pd.Series, parser) -> pd.Series:
+    def safe(value):
         try:
-            business_class=pd.read_csv(os.path.join('data','business.csv'))
-            economy_class=pd.read_csv(os.path.join('data','economy.csv'))
-            logging.info("data read successfully")
-            
-            business_class['class']='business'
-            economy_class['class']='economy'
-            
-            data=pd.concat([economy_class, business_class],ignore_index=True)
-            data.drop_duplicates(inplace=True)
-            logging.info("raw dataset ingested successfully")
-            
-            logging.info("initiating train test split")
-            X=data.drop(columns=TARGET_FEATURE)
-            y=data[TARGET_FEATURE]
-                        
-            X_train,X_test,y_train,y_test=train_test_split(X
-                                               , y
-                                               , test_size=0.30
-                                               , shuffle=True
-                                               , random_state=42)
-            
-            logging.info("train test split completed")
-            
-            os.makedirs(os.path.dirname(self.ingestion_config.train_data_path), exist_ok=True)
-            X_train.to_csv(self.ingestion_config.train_data_path,index=False)
-            X_test.to_csv(self.ingestion_config.test_data_path,index=False)
-            y_train.to_csv(self.ingestion_config.train_target_path,index=False)
-            y_test.to_csv(self.ingestion_config.test_target_path,index=False)
-            
-            logging.info("data ingestion completed")
-            
-            return (             
-                self.ingestion_config.train_data_path,
-                self.ingestion_config.test_data_path,
-                self.ingestion_config.train_target_path,
-                self.ingestion_config.test_target_path
-            )
+            return parser(str(value)) if pd.notna(value) else np.nan
+        except (ValueError, TypeError):
+            return np.nan
 
-        except Exception as e:
-            logging.info('Exception occured in data_ingestion')
-            raise customexception(e,sys)
+    return series.map({value: safe(value) for value in series.unique()})
 
-if __name__=="__main__":
-    obj=DataIngestion()
-    obj.initiate_data_ingestion()
+
+def load_dataset(directory: Path | str) -> Dataset:
+    directory = Path(directory)
+    frames: list[pd.DataFrame] = []
+    sources: list[SourceRecord] = []
+    required = {
+        "date",
+        "airline",
+        "ch_code",
+        "num_code",
+        "dep_time",
+        "from",
+        "time_taken",
+        "stop",
+        "arr_time",
+        "to",
+        "price",
+    }
+    for cabin in ("economy", "business"):
+        path = directory / f"{cabin}.csv"
+        if not path.is_file():
+            raise FileNotFoundError(f"Missing {path}. Retrieve the original Kaggle raw files.")
+        raw = pd.read_csv(path, dtype=str)
+        if not required.issubset(raw.columns):
+            raise ValueError(f"{path.name} missing columns: {sorted(required - set(raw.columns))}")
+        raw["cabin_class"] = cabin
+        raw["source_file"] = path.name
+        frames.append(raw)
+        sources.append({"file": path.name, "sha256": sha256_file(path), "rows": len(raw)})
+    raw = pd.concat(frames, ignore_index=True)
+    missing = raw.isna().sum().astype(int).to_dict()
+    duplicates = int(raw.duplicated().sum())
+    raw = raw.drop_duplicates().reset_index(drop=True)
+    frame = raw.rename(columns={"from": "source_city", "to": "destination_city"}).copy()
+    for col in ("airline", "source_city", "destination_city", "ch_code", "num_code"):
+        frame[col] = frame[col].str.strip()
+    frame["departure_time"] = _safe_map(frame.dep_time, categorize_time)
+    frame["arrival_time"] = _safe_map(frame.arr_time, categorize_time)
+    frame["duration_minutes"] = _safe_map(frame.time_taken, convert_to_minutes)
+    frame["stops"] = _safe_map(frame.stop, parse_stops)
+    frame["travel_date"] = pd.to_datetime(_safe_map(frame.date, parse_travel_date))
+    frame["price"] = pd.to_numeric(
+        frame.price.str.replace(",", "", regex=False).str.strip(), errors="coerce"
+    )
+    reasons = {
+        "missing_or_invalid_feature": frame[FEATURES].isna().any(axis=1),
+        "invalid_fare": frame.price.isna() | ~np.isfinite(frame.price) | (frame.price <= 0),
+        "invalid_travel_date": frame.travel_date.isna(),
+        "unknown_airline": ~frame.airline.isin(AIRLINE_CODES),
+        "airline_code_mismatch": frame.ch_code != frame.airline.map(AIRLINE_CODES),
+        "invalid_route": ~frame.source_city.isin(CITIES)
+        | ~frame.destination_city.isin(CITIES)
+        | (frame.source_city == frame.destination_city),
+        "missing_flight_identifier": frame.num_code.isna() | frame.num_code.eq(""),
+    }
+    dep = _safe_map(frame.dep_time, clock_minutes)
+    arr = _safe_map(frame.arr_time, clock_minutes)
+    clock_mismatch = (arr - dep) % 1440 != frame.duration_minutes % 1440
+    invalid = pd.DataFrame(reasons).any(axis=1)
+    quality = {
+        "input_rows": sum(item["rows"] for item in sources),
+        "missing_raw": missing,
+        "exact_duplicates_removed": duplicates,
+        "excluded_rows": int(invalid.sum()),
+        "exclusion_reasons_overlapping": {key: int(value.sum()) for key, value in reasons.items()},
+        "clock_duration_mismatches_flagged": int(clock_mismatch.sum()),
+        "invalid_examples": raw.loc[invalid].head(10).fillna("").to_dict("records"),
+    }
+    frame = frame.loc[~invalid].reset_index(drop=True)
+    if frame.empty:
+        raise ValueError("No valid rows remain; inspect the source schema and quality report")
+    frame["flight_id"] = frame.ch_code + "-" + frame.num_code
+    quality.update(
+        {
+            "retained_rows": len(frame),
+            "identical_feature_rows": int(frame.duplicated(FEATURES).sum()),
+            "feature_groups_with_conflicting_fares": int(
+                (frame.groupby(FEATURES).price.nunique() > 1).sum()
+            ),
+            "travel_date_min": str(frame.travel_date.min().date()),
+            "travel_date_max": str(frame.travel_date.max().date()),
+            "fare_quantiles_inr": frame.price.quantile([0, 0.01, 0.5, 0.99, 1]).to_dict(),
+            "duration_quantiles_minutes": frame.duration_minutes.quantile(
+                [0, 0.01, 0.5, 0.99, 1]
+            ).to_dict(),
+            "observation_timestamp_available": False,
+        }
+    )
+    return Dataset(frame, quality, sources)
+
+
+def leakage_groups(frame: pd.DataFrame) -> np.ndarray:
+    """Join repeated flights AND identical canonical inputs, using no fare information."""
+    parents = list(range(len(frame)))
+
+    def find(item):
+        while parents[item] != item:
+            parents[item] = parents[parents[item]]
+            item = parents[item]
+        return item
+
+    for columns in (["airline", "source_city", "destination_city", "flight_id"], FEATURES):
+        first: dict[tuple[str | int | float, ...], int] = {}
+        for idx, key in enumerate(frame[columns].itertuples(index=False, name=None)):
+            if key in first:
+                a, b = find(idx), find(first[key])
+                parents[a] = b
+            else:
+                first[key] = idx
+    return np.array([find(idx) for idx in range(len(frame))])
+
+
+def holdout_split(frame: pd.DataFrame, groups: np.ndarray, seed: int, test_size: float):
+    if len(np.unique(groups)) < 5:
+        raise ValueError("At least five independent itinerary groups are needed")
+    train, test = next(
+        GroupShuffleSplit(n_splits=1, test_size=test_size, random_state=seed).split(
+            frame, groups=groups
+        )
+    )
+    if set(groups[train]) & set(groups[test]):
+        raise AssertionError("Group leakage")
+    return train, test

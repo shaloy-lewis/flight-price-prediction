@@ -1,81 +1,102 @@
-import streamlit as st
+"""Streamlit interface for historical configuration comparisons."""
+
+from datetime import time
+
 import pandas as pd
-from datetime import date, timedelta, datetime, time
-from src.pipeline.prediction_pipeline import PredictPipeline, CustomData
+import streamlit as st
 
-# Initialize prediction pipeline
-predict_pipeline = PredictPipeline()
+from src.artifacts import ArtifactError
+from src.pipeline.prediction_pipeline import PredictPipeline
+from src.schema import FlightRequest
+from src.utils.constants import AIRLINE_CODES, CITIES, SCOPE
+from src.utils.utils import categorize_time, validate_clock_duration
 
-# Streamlit app title
-st.title("Flight Price Prediction")
+st.set_page_config(page_title="Historical Fare Benchmark", page_icon=":airplane:")
+st.title("Historical Flight Fare Benchmark")
+st.info(SCOPE)
+st.caption(
+    "Based on Indian domestic offers for February-March 2022. No live airline or booking data is connected."
+)
 
-page = st.sidebar.selectbox('Page Navigation', ["Problem statement", "Predictor",])
 
-st.sidebar.markdown("""---""")
-st.sidebar.write("Created by [Shaloy Lewis](https://www.linkedin.com/in/shaloy-lewis/)")
-available_destinations = ['Delhi', 'Mumbai', 'Bangalore', 'Kolkata', 'Hyderabad', 'Chennai']
+@st.cache_resource
+def load_predictor():
+    return PredictPipeline()
 
-if page=="Problem statement":
-    st.write("""Predicting flight prices provides significant advantages for both businesses and individuals. For businesses, such predictions enable better budget management and planning of business travel, conferences, and events by anticipating cost fluctuations. It also allows companies in the travel industry to adjust pricing strategies dynamically, potentially gaining a competitive edge.
-             
-For individuals, predicting flight prices helps in saving money by booking tickets during periods of lower prices and allows for better planning of travel dates and destinations.
 
-Overall, this capability enhances customer satisfaction, operational efficiency, and ensures more informed decision-making, benefiting both travelers and businesses involved in the travel sector.
-            """)
-
+page = st.sidebar.selectbox("Page", ["Problem statement", "Predictor"])
+if page == "Problem statement":
+    st.write(
+        "Estimate a historical fare benchmark for a specified itinerary to explore travel-budget assumptions. "
+        "Compare the estimate with a route/class median and obtain a current quote before making a purchase."
+    )
+    st.write(
+        "This dataset cannot identify the best future booking date or measure cost savings. "
+        "Differences between airlines, classes and routes are associations, not causal effects."
+    )
 else:
-    st.subheader("Enter travel details:")
-    date=st.date_input("Date of travel", format="DD-MM-YYYY", min_value=date.today()+timedelta(days=1), max_value=date.today()+timedelta(days=49))
-    col1 = st.columns(2)
-    from_=col1[0].selectbox('From', options=available_destinations)
-    if from_:
-        available_destinations.remove(from_)
-    to_ = col1[1].selectbox('To', options=available_destinations) if from_ else col1.empty()
-    col2=st.columns(3)
-    airline=col2[0].selectbox('Airline', options=['SpiceJet', 'AirAsia', 'Vistara', 'GO FIRST', 'Indigo','Air India', 'Trujet', 'StarAir'])
-    class_=col2[1].selectbox('Flight class', options=['economy', 'business'])
-    ch_code=col2[2].selectbox('Airline character code', options=['SG', 'I5', 'UK', 'G8', '6E', 'AI', '2T', 'S5'])
-    col3=st.columns(4)
-    dep_time=col3[0].time_input("Departure time HH MM",value=time(19, 00))
-    arr_time=col3[1].time_input("Arrival time HH MM",value=time(21, 00))
-    if dep_time and arr_time:
-        # Convert to string format
-        dep_time_str = dep_time.strftime("%H:%M")
-        arr_time_str = arr_time.strftime("%H:%M")
-
-        # Calculate flight duration
-        departure = datetime.combine(date.today(), dep_time)
-        arrival = datetime.combine(date.today(), arr_time)
-        flight_duration = arrival - departure
-        hours, remainder = divmod(flight_duration.seconds, 3600)
-        minutes = remainder // 60
-        time_taken = f"{hours}h {minutes}m"
-
-        time_taken=col3[2].text_input("Flight duration",value=time_taken)
-    stop=col3[3].selectbox('Number of stops', options=['non-stop','1-stop','2+stop'])
-
-    # Button to submit data and get predictions
-    if st.button('Predict'):
-        custom_data = CustomData(
-            airline=airline,
-            from_=from_,
-            to_=to_,
-            class_=class_,
-            ch_code=ch_code,
-            dep_time=dep_time.strftime("%H:%M"),
-            arr_time=arr_time.strftime("%H:%M"),
-            date=date,
-            time_taken=time_taken,
-            stop=stop
+    try:
+        predictor = load_predictor()
+    except ArtifactError:
+        st.error(
+            "A compatible model is unavailable. Follow the README training instructions and set MODEL_DIR."
         )
-
-        # Convert to DataFrame
-        features_df = custom_data.get_data_as_dataframe()
-
-        # Initialize the prediction pipeline and make predictions
-        pipeline = PredictPipeline()
-        prediction = pipeline.predict(features_df)
-        
-        # Display the prediction results
-        st.subheader("Prediction Results:")
-        st.write(f"Estimated flight price: INR {prediction[0]:.2f}")
+        st.stop()
+    reference = predictor.manifest["reference"]
+    st.caption(
+        f"Model version: {predictor.manifest['model_version']}; "
+        "individual prediction intervals have not been calibrated."
+    )
+    with st.form("itinerary"):
+        cols = st.columns(2)
+        origin = cols[0].selectbox("From", CITIES)
+        destination = cols[1].selectbox("To", CITIES, index=1)
+        cols = st.columns(2)
+        airline = cols[0].selectbox(
+            "Historical airline", sorted(reference["categorical"]["airline"])
+        )
+        cabin = cols[1].selectbox("Cabin", ["economy", "business"])
+        cols = st.columns(3)
+        departure = cols[0].time_input("Departure time", value=time(19, 0))
+        arrival = cols[1].time_input("Arrival time", value=time(21, 0))
+        duration = cols[2].number_input(
+            "Total duration (minutes, including connections)",
+            min_value=1,
+            max_value=4320,
+            value=120,
+        )
+        stops = st.selectbox("Stops (2 means two or more)", [0, 1, 2])
+        st.caption(
+            f"Airline code: {AIRLINE_CODES[airline]}. Enter the full duration for overnight or multi-day itineraries."
+        )
+        submitted = st.form_submit_button("Estimate historical fare")
+    if submitted:
+        try:
+            validate_clock_duration(
+                departure.strftime("%H:%M"), arrival.strftime("%H:%M"), duration
+            )
+            request = FlightRequest(
+                airline=airline,
+                source_city=origin,
+                destination_city=destination,
+                cabin_class=cabin,
+                departure_time=categorize_time(departure.strftime("%H:%M")),
+                arrival_time=categorize_time(arrival.strftime("%H:%M")),
+                duration_minutes=float(duration),
+                stops=stops,
+            )
+            frame = pd.DataFrame([request.model_dump()])
+        except ValueError as exc:
+            st.error(f"Please check the itinerary: {exc}")
+        else:
+            for warning in predictor.warnings(frame):
+                st.warning(warning)
+            try:
+                estimate = predictor.predict(frame)[0]
+                st.metric("Estimated historical fare (INR)", f"{estimate:,.2f}")
+                st.caption(
+                    "This is a model estimate of a historical offer, not a verified present-day fare. "
+                    "Compare a current quote before budgeting or booking."
+                )
+            except Exception:
+                st.error("The estimate could not be generated. Check the model and server logs.")
